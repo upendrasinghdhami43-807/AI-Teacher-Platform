@@ -1,0 +1,1 @@
+export default function SettingsPage() { return <div className='animate-fade-in-up'><h1 className='text-2xl font-display font-bold text-text-primary'>SettingsPage</h1><p className='text-text-secondary mt-2'>Coming soon...</p></div>; }
