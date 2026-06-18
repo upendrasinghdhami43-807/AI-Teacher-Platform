@@ -44,7 +44,7 @@ export default function AiTeacherPage() {
             </label>
             <Input 
               value={topic}
-              onChange={(e) => setTopic(e.target.value)}
+              onChange={setTopic}
               placeholder="e.g., Newton's Third Law, Photosynthesis, Quadratic Equations..."
               className="w-full text-lg py-3"
               autoFocus

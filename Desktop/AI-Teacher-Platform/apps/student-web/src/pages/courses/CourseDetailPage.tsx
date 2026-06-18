@@ -24,6 +24,7 @@ export default function CourseDetailPage() {
 
   // Get the first lesson to start
   const firstLessonId = course.chapters[0]?.lessons[0]?.lesson_id;
+  const isEnrolled = false;
 
   return (
     <div className="animate-fade-in space-y-8 pb-10 max-w-5xl mx-auto">

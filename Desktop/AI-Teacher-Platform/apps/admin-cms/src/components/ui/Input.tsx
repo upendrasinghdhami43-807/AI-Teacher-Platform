@@ -7,6 +7,7 @@ interface InputProps {
   placeholder?: string;
   type?: 'text' | 'email' | 'password' | 'number' | 'tel' | 'url';
   value?: string;
+  defaultValue?: string;
   onChange?: (value: string) => void;
   error?: string;
   hint?: string;
@@ -24,12 +25,12 @@ interface InputProps {
 }
 
 export default function Input({
-  label, placeholder, type = 'text', value, onChange, error, hint,
+  label, placeholder, type = 'text', value, defaultValue, onChange, error, hint,
   leftIcon, rightIcon, disabled, required, maxLength, className,
   id, name, autoComplete, textarea, rows = 3,
 }: InputProps) {
   const [showPassword, setShowPassword] = useState(false);
-  const [localValue, setLocalValue] = useState(value || '');
+  const [localValue, setLocalValue] = useState(value ?? defaultValue ?? '');
   const currentValue = value ?? localValue;
 
   const handleChange = (val: string) => {

@@ -57,7 +57,7 @@ export default function CourseBuilderPage() {
                 <label className="block text-sm font-medium text-text-secondary mb-1">Course Title</label>
                 <Input 
                   value={title} 
-                  onChange={(e) => setTitle(e.target.value)} 
+                  onChange={setTitle} 
                   placeholder="e.g., Physics — Class 11" 
                   className="w-full"
                 />
@@ -76,11 +76,11 @@ export default function CourseBuilderPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-text-secondary mb-1">Subject</label>
-                  <Input value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="e.g., Physics" className="w-full" />
+                  <Input value={subject} onChange={setSubject} placeholder="e.g., Physics" className="w-full" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-text-secondary mb-1">Level</label>
-                  <Input value={level} onChange={(e) => setLevel(e.target.value)} placeholder="e.g., class_11" className="w-full" />
+                  <Input value={level} onChange={setLevel} placeholder="e.g., class_11" className="w-full" />
                 </div>
               </div>
             </div>

@@ -11,7 +11,7 @@ interface AdminAuthState {
 }
 
 const mockAdmin: AdminUser = {
-  id: 'admin-001', name: 'Super Admin', email: 'admin@aiteacher.np',
+  id: 'admin-001', name: 'Super Admin', email: 'aiteacher123@gmail.com',
   role: 'super_admin', last_login_at: '2026-06-17T20:00:00Z',
 };
 
@@ -24,7 +24,7 @@ export const useAdminAuthStore = create<AdminAuthState>((set) => ({
   login: async (email: string, password: string) => {
     set({ isLoading: true, error: null });
     await new Promise(r => setTimeout(r, 800));
-    if (email === 'admin@aiteacher.np' && password === 'admin123') {
+    if (email === 'aiteacher123@gmail.com' && password === 'ai2062TeacherAK') {
       set({ admin: mockAdmin, isAuthenticated: true, isLoading: false });
     } else {
       set({ isLoading: false, error: 'Invalid credentials' });

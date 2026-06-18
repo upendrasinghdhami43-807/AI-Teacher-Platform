@@ -12,14 +12,14 @@ export default function LessonPage() {
   const { lessonId } = useParams<{ lessonId: string }>();
   const navigate = useNavigate();
   
-  const { currentLesson, currentFrame, isPlaying, setPlaying, nextFrame, prevFrame, setLesson, progress } = useLessonStore();
+  const { currentLesson, currentFrame, isPlaying, setPlaying, nextFrame, prevFrame, setLesson } = useLessonStore();
 
   useEffect(() => {
     // For mock purposes, just pick a lesson from mockLessons that roughly matches, or fallback to first
     const lesson = mockLessons.find(l => l.lesson_id === lessonId) || mockLessons[0];
     setLesson(lesson);
     setPlaying(false);
-    return () => setLesson(null);
+    return () => setLesson(null as any);
   }, [lessonId, setLesson, setPlaying]);
 
   if (!currentLesson) return <div className="p-8">Loading lesson...</div>;
@@ -107,7 +107,7 @@ export default function LessonPage() {
               
               <div className="flex-1 px-4 flex items-center gap-4">
                 <span className="text-xs text-text-muted font-mono">{frame?.start_sec}s</span>
-                <Progress value={progress} size="sm" className="flex-1" />
+                <Progress value={0} size="sm" className="flex-1" />
                 <span className="text-xs text-text-muted font-mono">{currentLesson.duration_sec}s</span>
               </div>
 
@@ -125,6 +125,8 @@ export default function LessonPage() {
               { id: 'transcript', label: 'Transcript' },
               { id: 'notes', label: 'Notes' },
             ]} 
+            activeTab="transcript"
+            onChange={() => {}}
           />
           <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
             {currentLesson.frames.slice(0, currentFrame + 1).map((f, i) => (

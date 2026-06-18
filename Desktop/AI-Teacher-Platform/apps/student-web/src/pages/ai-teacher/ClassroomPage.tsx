@@ -183,7 +183,7 @@ export default function ClassroomPage() {
             <form onSubmit={sendMessage} className="relative">
               <Input 
                 value={input}
-                onChange={(e) => setInput(e.target.value)}
+                onChange={setInput}
                 placeholder="Ask a question..."
                 className="w-full pr-24 py-3 bg-bg-base border-border"
               />

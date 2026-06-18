@@ -33,7 +33,7 @@ export default function CoursesAdminPage() {
           <Input 
             placeholder="Search courses..." 
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={setSearchTerm}
             className="pl-10 w-full"
           />
         </div>

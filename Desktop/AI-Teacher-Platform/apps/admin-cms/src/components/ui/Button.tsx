@@ -13,6 +13,7 @@ interface ButtonProps {
   type?: 'button' | 'submit' | 'reset';
   children: React.ReactNode;
   className?: string;
+  title?: string;
 }
 
 const variantStyles = {
@@ -32,13 +33,14 @@ const sizeStyles = {
 
 export default function Button({
   variant = 'primary', size = 'md', loading, disabled, leftIcon, rightIcon,
-  fullWidth, onClick, type = 'button', children, className,
+  fullWidth, onClick, type = 'button', children, className, title,
 }: ButtonProps) {
   const isDisabled = disabled || loading;
 
   return (
     <button
       type={type}
+      title={title}
       onClick={onClick}
       disabled={isDisabled}
       className={cn(
