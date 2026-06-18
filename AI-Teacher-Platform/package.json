@@ -1,0 +1,13 @@
+{
+  "name": "ai-teacher-platform",
+  "private": true,
+  "workspaces": ["apps/*"],
+  "scripts": {
+    "dev:student": "npm run dev --workspace=apps/student-web",
+    "dev:admin": "npm run dev --workspace=apps/admin-cms",
+    "dev": "concurrently \"npm run dev:student\" \"npm run dev:admin\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  }
+}
