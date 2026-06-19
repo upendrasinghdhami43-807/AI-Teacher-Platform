@@ -1,0 +1,48 @@
+# AI Teacher Platform — Stage 2 Backend Dependencies
+# Python 3.12+
+
+# Web Framework
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+
+# Database
+sqlalchemy[asyncio]>=2.0.36
+asyncpg>=0.30.0
+alembic>=1.14.0
+
+# Redis
+redis[hiredis]>=5.2.0
+
+# Background Tasks
+celery[redis]>=5.4.0
+
+# Data Validation
+pydantic>=2.10.0
+pydantic-settings>=2.7.0
+
+# HTTP Client
+httpx>=0.28.0
+
+# Auth
+python-jose[cryptography]>=3.3.0
+passlib[bcrypt]>=1.7.4
+
+# AI Providers
+google-generativeai>=0.8.0
+openai>=1.58.0
+groq>=0.13.0
+
+# Voice / TTS
+azure-cognitiveservices-speech>=1.42.0
+pydub>=0.25.1
+
+# Utilities
+python-dotenv>=1.0.0
+tenacity>=9.0.0
+structlog>=24.4.0
+python-multipart>=0.0.18
+
+# Testing
+pytest>=8.3.0
+pytest-asyncio>=0.25.0
+pytest-httpx>=0.35.0

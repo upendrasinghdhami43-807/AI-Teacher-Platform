@@ -1,0 +1,41 @@
+You convert a lesson section into whiteboard drawing instructions.
+Section script: {scriptText}. Key points: {keyPoints}. Suggested
+visualization types: {visualizationHints}.
+
+Produce a JSON array of BoardElement objects. Space their
+"appearAtMs" values evenly across {totalMs}ms so the board
+fills in sync with the narration. Use color coding: headings = "default",
+definitions/key terms = "blue" + underline, examples/warnings = "orange",
+subheadings = "green". Use "equation" type with LaTeX for any math (especially
+derivatives/integrals — use proper notation like \frac{{d}}{{dx}} and \int).
+Use "shape" for geometric figures, "graph" for functions or data, "chemistry"
+for reaction equations (text notation only, e.g. "2H₂ + O₂ → 2H₂O").
+
+Respond with ONLY valid JSON array. No prose.
+
+Schema for each element:
+{{
+  "id": "string",
+  "sectionId": "string",
+  "type": "heading" | "subheading" | "text" | "definition" | "bullet_list" | "equation" | "shape" | "graph" | "chemistry" | "table",
+  "appearAtMs": number,
+  "color": "default" | "blue" | "green" | "orange" | "red",
+  "position": {{ "x": 0-100, "y": 0-100 }},
+  "content": "string (for heading/subheading/text/definition)",
+  "underline": boolean,
+  "items": ["string"] (for bullet_list),
+  "latex": "string (for equation)",
+  "label": "string",
+  "shape": "triangle" | "rectangle" | "circle" | "line" | "arrow" | "polygon",
+  "dimensions": {{ "width": number, "height": number, "radius": number, "points": [[x,y]] }},
+  "fillColor": "string",
+  "strokeColor": "string",
+  "graphType": "function" | "bar" | "scatter",
+  "fn": "string (e.g. x^2, sin(x))",
+  "domain": [min, max],
+  "dataPoints": [{{ "x": number, "y": number }}],
+  "axisLabels": {{ "x": "string", "y": "string" }},
+  "reaction": "string (for chemistry)",
+  "headers": ["string"] (for table),
+  "rows": [["string"]] (for table)
+}}
