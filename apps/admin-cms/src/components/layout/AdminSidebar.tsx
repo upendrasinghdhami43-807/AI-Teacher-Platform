@@ -20,7 +20,7 @@ const navGroups = [
     { to: '/courses', icon: BookOpen, label: 'Courses' },
     { to: '/courses/new', icon: Wrench, label: 'Course Builder' },
     { to: '/content', icon: FolderOpen, label: 'Content Library' },
-    { to: '/content/smart-pdfs', icon: FileText, label: 'Smart PDFs' },
+    { to: '/pdfs', icon: FileText, label: 'AI PDF Teacher' },
     { to: '/lectures', icon: Mic, label: 'Lecture Library' },
   ]},
   { label: 'AI & INSIGHTS', items: [

@@ -8,3 +8,21 @@ dist/
 .vscode/
 .idea/
 *.tsbuildinfo
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.toast
+.lucid
+.pytest_cache/
+.coverage
+.cache
+.hypothesis/

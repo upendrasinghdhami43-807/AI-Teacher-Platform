@@ -1,23 +1,24 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BrainCircuit, BookOpen, MessageSquare, ArrowRight, Lock, Sparkles, Image, FileText } from 'lucide-react';
+import { BrainCircuit, BookOpen, MessageSquare, ArrowRight, Lock, Sparkles, FileText } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import Input from '@/components/ui/Input';
 import Badge from '@/components/ui/Badge';
+import ImageUpload from '@/components/ui/ImageUpload';
 import TeacherPersonaSelector from '@/components/persona/TeacherPersonaSelector';
 import { TEACHER_PERSONAS } from '@/types/persona.types';
 import { useLessonStore } from '@/store/lessonStore';
 
 export default function AiTeacherPage() {
   const navigate = useNavigate();
-  const { selectedPersonaId, setPersona } = useLessonStore();
+  const { selectedPersonaId, setPersona, setContextImages } = useLessonStore();
 
   const [topic, setTopic] = useState('');
-  const [grade, setGrade] = useState('class_11_science');
   const [language, setLanguage] = useState('ne_en');
   const [level, setLevel] = useState('recommended');
   const [contextText, setContextText] = useState('');
+  const [images, setImages] = useState<File[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   const persona = TEACHER_PERSONAS.find(p => p.id === selectedPersonaId) || TEACHER_PERSONAS[0];
@@ -45,11 +46,11 @@ export default function AiTeacherPage() {
     if (!topic.trim()) return;
 
     setIsLoading(true);
+    setContextImages(images);
 
     // Build params and navigate to classroom
     const params = new URLSearchParams({
       topic,
-      grade,
       language: resolvedLanguage,
       level: resolvedLevel,
       persona: selectedPersonaId,
@@ -99,23 +100,7 @@ export default function AiTeacherPage() {
           </div>
 
           {/* Config Grid */}
-          <div className="grid md:grid-cols-3 gap-6 pt-4 border-t border-border">
-            {/* Grade - always editable */}
-            <div>
-              <label className="block text-sm font-medium text-text-secondary mb-2">Grade / Curriculum</label>
-              <select
-                value={grade}
-                onChange={(e) => setGrade(e.target.value)}
-                className="w-full px-4 py-2.5 bg-bg-elevated border border-border rounded-md text-sm text-text-primary focus:outline-none focus:border-primary-500 transition-colors"
-              >
-                <option value="class_10">Class 10 (SEE)</option>
-                <option value="class_11_science">Class 11 (Science)</option>
-                <option value="class_11_management">Class 11 (Management)</option>
-                <option value="class_12_science">Class 12 (Science)</option>
-                <option value="bachelors">Bachelors</option>
-              </select>
-            </div>
-
+          <div className="grid md:grid-cols-2 gap-6 pt-4 border-t border-border">
             {/* Language - editable or locked badge */}
             <div>
               <label className="block text-sm font-medium text-text-secondary mb-2">Language</label>
@@ -168,17 +153,21 @@ export default function AiTeacherPage() {
           </div>
 
           {/* Context (optional) */}
-          <div className="pt-4 border-t border-border">
-            <label className="block text-sm font-medium text-text-secondary mb-2 flex items-center gap-2">
-              <FileText size={14} className="text-text-muted" /> Additional Context <span className="text-text-muted">(optional)</span>
-            </label>
-            <textarea
-              value={contextText}
-              onChange={(e) => setContextText(e.target.value)}
-              placeholder="Provide any specific focus area, past paper question, or context for the lesson..."
-              rows={3}
-              className="w-full px-4 py-3 bg-bg-elevated border border-border rounded-md text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-primary-500 transition-colors resize-none"
-            />
+          <div className="pt-4 border-t border-border space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-text-secondary mb-2 flex items-center gap-2">
+                <FileText size={14} className="text-text-muted" /> Additional Context <span className="text-text-muted">(optional)</span>
+              </label>
+              <textarea
+                value={contextText}
+                onChange={(e) => setContextText(e.target.value)}
+                placeholder="Provide any specific focus area, past paper question, or context for the lesson..."
+                rows={3}
+                className="w-full px-4 py-3 bg-bg-elevated border border-border rounded-md text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-primary-500 transition-colors resize-none"
+              />
+            </div>
+            
+            <ImageUpload images={images} onChange={setImages} maxImages={3} />
           </div>
 
           {/* Submit */}

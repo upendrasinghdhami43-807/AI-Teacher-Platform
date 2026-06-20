@@ -17,6 +17,7 @@ interface LessonState {
   currentSectionIndex: number;
   currentTimeMs: number;
   totalDurationMs: number;
+  contextImages: File[];
 
   // Actions
   setLesson: (lesson: Lesson) => void;
@@ -31,6 +32,7 @@ interface LessonState {
   setSession: (session: LessonSession) => void;
   setSectionIndex: (index: number) => void;
   setCurrentTime: (ms: number) => void;
+  setContextImages: (images: File[]) => void;
   reset: () => void;
 }
 
@@ -48,6 +50,7 @@ export const useLessonStore = create<LessonState>((set, get) => ({
   currentSectionIndex: 0,
   currentTimeMs: 0,
   totalDurationMs: 0,
+  contextImages: [],
 
   setLesson: (lesson) => set({ currentLesson: lesson, currentFrame: 0, isPlaying: false }),
   setPlaying: (playing) => set({ isPlaying: playing }),
@@ -75,9 +78,10 @@ export const useLessonStore = create<LessonState>((set, get) => ({
   }),
   setSectionIndex: (index) => set({ currentSectionIndex: index }),
   setCurrentTime: (ms) => set({ currentTimeMs: ms }),
+  setContextImages: (images) => set({ contextImages: images }),
   reset: () => set({
     currentLesson: null, currentFrame: 0, isPlaying: false,
     isGenerating: false, session: null, currentSectionIndex: 0,
-    currentTimeMs: 0, totalDurationMs: 0,
+    currentTimeMs: 0, totalDurationMs: 0, contextImages: [],
   }),
 }));

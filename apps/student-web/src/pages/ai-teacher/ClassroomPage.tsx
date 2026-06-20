@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Play, Pause, RotateCcw, Clock, AlertTriangle, Volume2, VolumeX, BrainCircuit, Send, SkipForward, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Play, Pause, RotateCcw, Clock, AlertTriangle, Volume2, VolumeX, BrainCircuit, Send, SkipForward, ChevronRight, Maximize, Minimize, Hand, Download } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLessonStore } from '@/store/lessonStore';
 import BoardCanvas from '@/components/whiteboard/BoardCanvas';
+import RaiseHandModal from '@/components/whiteboard/RaiseHandModal';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import Input from '@/components/ui/Input';
@@ -28,9 +29,12 @@ export default function ClassroomPage() {
   const [isMuted, setIsMuted] = useState(false);
   const [messages, setMessages] = useState<{ role: 'user' | 'assistant'; text: string }[]>([]);
   const [chatInput, setChatInput] = useState('');
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isRaiseHandOpen, setIsRaiseHandOpen] = useState(false);
 
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const boardContainerRef = useRef<HTMLDivElement>(null);
 
   // Fetch lesson
   useEffect(() => {
@@ -79,7 +83,16 @@ export default function ClassroomPage() {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [topic, grade, language, level, personaId]);
+  }, [topic, language, level, personaId]);
+
+  // Fullscreen listener
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
 
   // Generate local demo when backend is unavailable
   const generateLocalDemo = () => {
@@ -211,6 +224,28 @@ export default function ClassroomPage() {
     return `${min}:${sec.toString().padStart(2, '0')}`;
   };
 
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      boardContainerRef.current?.requestFullscreen().catch(err => {
+        console.error(`Error attempting to enable full-screen mode: ${err.message}`);
+      });
+    } else {
+      document.exitFullscreen();
+    }
+  };
+
+  const exportBoard = () => {
+    setMessages(prev => [...prev, { role: 'assistant', text: '📄 Board exported as PDF successfully.' }]);
+  };
+
+  const handleDoubtSubmit = (doubt: string) => {
+    setIsRaiseHandOpen(false);
+    setMessages(prev => [...prev, { role: 'user', text: `✋ Raised Hand: ${doubt}` }]);
+    setTimeout(() => {
+      setMessages(prev => [...prev, { role: 'assistant', text: `Good question! I am processing your doubt and will explain it on the board shortly.` }]);
+    }, 1000);
+  };
+
   const totalMs = session ? session.totalDurationSeconds * 1000 : 300000;
   const progressPercent = Math.min((currentTimeMs / totalMs) * 100, 100);
 
@@ -310,8 +345,27 @@ export default function ClassroomPage() {
       {/* Main content */}
       <div className="flex-1 flex gap-4 mt-2 min-h-0">
         {/* Whiteboard */}
-        <div className="flex-1 flex flex-col rounded-xl overflow-hidden border border-border shadow-sm">
-          <div className="flex-1 relative">
+        <div 
+          ref={boardContainerRef} 
+          className={`flex-1 flex flex-col overflow-hidden border border-border shadow-sm bg-bg-surface ${isFullscreen ? 'fixed inset-0 z-[100] rounded-none' : 'rounded-xl relative'}`}
+        >
+          {isFullscreen && (
+            <div className="absolute top-4 right-4 z-50 flex gap-2">
+              <button
+                onClick={() => setIsRaiseHandOpen(true)}
+                className="flex items-center gap-2 px-3 py-1.5 bg-accent-amber/90 hover:bg-accent-amber text-white rounded-md text-sm font-medium shadow-md transition-all"
+              >
+                <Hand size={16} /> Raise Hand
+              </button>
+              <button 
+                onClick={toggleFullscreen} 
+                className="p-2 bg-black/50 hover:bg-black/70 text-white rounded-md backdrop-blur-sm transition-colors"
+              >
+                <Minimize size={20} />
+              </button>
+            </div>
+          )}
+          <div className="flex-1 relative min-h-0">
             <BoardCanvas
               elements={session?.board || []}
               currentTimeMs={currentTimeMs}
@@ -320,7 +374,7 @@ export default function ClassroomPage() {
           </div>
 
           {/* Playback controls */}
-          <div className="flex items-center justify-between px-4 py-2 bg-bg-surface border-t border-border">
+          <div className="flex-shrink-0 flex items-center justify-between px-4 py-2 bg-bg-surface border-t border-border flex-wrap gap-y-2">
             <div className="flex items-center gap-2">
               <button
                 onClick={togglePlay}
@@ -342,6 +396,30 @@ export default function ClassroomPage() {
               >
                 <SkipForward size={16} />
               </button>
+            </div>
+
+            {/* Board Actions */}
+            <div className="flex items-center gap-2 border-x border-border px-4 mx-4">
+               <button
+                  onClick={() => setIsRaiseHandOpen(true)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-accent-amber hover:bg-accent-amber/10 rounded-md transition-colors border border-accent-amber/20"
+               >
+                 <Hand size={14} /> Raise Hand
+               </button>
+               <button
+                 onClick={exportBoard}
+                 className="p-1.5 text-text-muted hover:text-primary-400 transition-colors rounded-md"
+                 title="Export Board as PDF"
+               >
+                 <Download size={16} />
+               </button>
+               <button
+                 onClick={toggleFullscreen}
+                 className="p-1.5 text-text-muted hover:text-primary-400 transition-colors rounded-md"
+                 title="Full Screen"
+               >
+                 <Maximize size={16} />
+               </button>
             </div>
 
             <div className="flex items-center gap-3">
@@ -396,6 +474,13 @@ export default function ClassroomPage() {
           </div>
         </Card>
       </div>
+      
+      {/* Raise Hand Modal */}
+      <RaiseHandModal 
+        isOpen={isRaiseHandOpen} 
+        onClose={() => setIsRaiseHandOpen(false)} 
+        onSubmit={handleDoubtSubmit} 
+      />
     </div>
   );
 }

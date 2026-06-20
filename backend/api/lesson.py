@@ -15,7 +15,7 @@ import uuid
 from typing import Optional
 
 import structlog
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, BackgroundTasks
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
@@ -30,12 +30,15 @@ class LessonRequestBody(BaseModel):
     """Request body for lesson generation."""
     persona_id: str = "ai_teacher"
     topic: str
-    grade: str = "class_11_science"
     language: str = "ne_en"
     level: str = "medium"
     context_text: Optional[str] = None
-    context_image_url: Optional[str] = None
+    context_images: Optional[list[str]] = Field(default_factory=list)
 
+
+class RaiseHandRequest(BaseModel):
+    session_id: str
+    doubt: str
 
 class PersonaResponse(BaseModel):
     """Persona info for the frontend."""
@@ -90,16 +93,8 @@ async def generate_lesson(body: LessonRequestBody):
     resolved_level = level
     level_reason = None
     if level == "recommended":
-        # In real pipeline, Decision Agent resolves this
-        grade_level_map = {
-            "class_10": "basic",
-            "class_11_science": "medium",
-            "class_11_management": "basic",
-            "class_12_science": "advanced",
-            "bachelors": "advanced",
-        }
-        resolved_level = grade_level_map.get(body.grade, "medium")
-        level_reason = f"Based on {body.grade.replace('_', ' ')} curriculum, {resolved_level} depth is appropriate for '{body.topic}'"
+        resolved_level = "medium"
+        level_reason = f"Based on general curriculum, medium depth is appropriate for '{body.topic}'"
 
     # Generate demo lesson plan
     wpm = settings.LESSON_SPEAKING_RATE_WPM
@@ -128,7 +123,7 @@ async def generate_lesson(body: LessonRequestBody):
         word_budget = int(section["estimatedSeconds"] * wpm / 60)
         script_text = _generate_demo_script(
             body.topic, section["title"], section["keyPoints"],
-            language, body.grade, word_budget
+            language, word_budget
         )
         word_count = len(script_text.split())
         scripts.append({
@@ -160,11 +155,10 @@ async def generate_lesson(body: LessonRequestBody):
         "request": {
             "personaId": body.persona_id,
             "topic": body.topic,
-            "grade": body.grade,
             "language": language,
             "level": level,
             "contextText": body.context_text,
-            "contextImageUrl": body.context_image_url,
+            "contextImages": body.context_images,
             "maxDurationSeconds": max_duration,
         },
         "plan": {
@@ -192,6 +186,22 @@ async def generate_lesson(body: LessonRequestBody):
     )
 
     return lesson_session
+
+
+async def _process_doubt_background(session_id: str, doubt: str):
+    """Simulate background processing of a student's doubt."""
+    logger.info("background_task.start", session_id=session_id, doubt=doubt)
+    await asyncio.sleep(2)
+    logger.info("background_task.complete", session_id=session_id, doubt=doubt, result="Explained on board")
+
+@router.post("/lesson/raise-hand")
+async def raise_hand(body: RaiseHandRequest, background_tasks: BackgroundTasks):
+    """
+    Handle a student's doubt raised during a lesson.
+    Processes the doubt in the background to update the board or script.
+    """
+    background_tasks.add_task(_process_doubt_background, body.session_id, body.doubt)
+    return {"status": "processing", "message": "Doubt received, AI is processing"}
 
 
 def _generate_demo_sections(topic: str, level: str, max_duration: int, wpm: int) -> list:
@@ -276,7 +286,7 @@ def _generate_demo_sections(topic: str, level: str, max_duration: int, wpm: int)
 
 def _generate_demo_script(
     topic: str, section_title: str, key_points: list,
-    language: str, grade: str, word_budget: int
+    language: str, word_budget: int
 ) -> str:
     """Generate demo script text for a section."""
     points_text = "; ".join(key_points)
@@ -286,31 +296,27 @@ def _generate_demo_script(
             f"Alright students, let's talk about {section_title}. "
             f"Yo section ma hami {topic} ko baare ma detail ma discuss garne chhaun. "
             f"Key points haru chhan: {points_text}. "
-            f"Yeslai ramro sanga bujhnu important chha kinaki yo {grade.replace('_', ' ')} "
-            f"ko exam ma frequently aaucha. "
+            f"Yeslai ramro sanga bujhnu important chha. "
             f"So let's dive deeper into each of these concepts."
         )
     elif language == "ne":
         return (
             f"विद्यार्थीहरू, अब हामी {section_title} बारे पढ्ने छौं। "
             f"{topic} को यो भाग धेरै महत्त्वपूर्ण छ। "
-            f"मुख्य कुराहरू: {points_text}। "
-            f"यो {grade.replace('_', ' ')} मा अक्सर सोधिन्छ।"
+            f"मुख्य कुराहरू: {points_text}।"
         )
     elif language == "hi":
         return (
             f"छात्रों, आइए {section_title} के बारे में बात करते हैं। "
             f"यह {topic} का एक महत्वपूर्ण हिस्सा है। "
-            f"मुख्य बिंदु: {points_text}। "
-            f"यह {grade.replace('_', ' ')} की परीक्षा में बार-बार पूछा जाता है।"
+            f"मुख्य बिंदु: {points_text}।"
         )
     else:
         return (
             f"Alright students, let's explore {section_title}. "
             f"In this section, we'll cover the key aspects of {topic}. "
             f"The main points are: {points_text}. "
-            f"Understanding these concepts is crucial for your {grade.replace('_', ' ')} "
-            f"examinations, where this topic frequently appears. "
+            f"Understanding these concepts is crucial. "
             f"Let's break down each concept step by step."
         )
 

@@ -47,23 +47,23 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const location = useLocation();
 
   const sidebarContent = (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full overflow-hidden">
       {/* Logo */}
-      <div className="flex items-center gap-3 px-5 py-5 border-b border-border">
-        <div className="w-8 h-8 rounded-lg gradient-brand flex items-center justify-center">
+      <div className="flex items-center gap-3 px-5 py-5 border-b border-border min-w-[260px]">
+        <div className="w-8 h-8 rounded-lg gradient-brand flex items-center justify-center flex-shrink-0">
           <span className="text-white font-bold text-sm">AT</span>
         </div>
-        <span className="text-lg font-display font-bold text-text-primary">AI Teacher</span>
+        <span className="text-lg font-display font-bold text-text-primary whitespace-nowrap opacity-100 lg:opacity-0 lg:group-hover/sidebar:opacity-100 transition-opacity">AI Teacher</span>
         <button onClick={onClose} className="ml-auto lg:hidden text-text-muted hover:text-text-primary">
           <X size={20} />
         </button>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-6 scrollbar-thin">
+      <nav className="flex-1 overflow-y-auto overflow-x-hidden py-4 px-3 space-y-6 scrollbar-thin min-w-[260px]">
         {navGroups.map(group => (
           <div key={group.label}>
-            <p className="px-3 mb-2 text-[10px] font-semibold uppercase tracking-widest text-text-muted">{group.label}</p>
+            <p className="px-3 mb-2 text-[10px] font-semibold uppercase tracking-widest text-text-muted opacity-100 lg:opacity-0 lg:group-hover/sidebar:opacity-100 transition-opacity">{group.label}</p>
             <div className="space-y-0.5">
               {group.items.map(item => {
                 const isActive = location.pathname === item.to || location.pathname.startsWith(item.to + '/');
@@ -80,9 +80,11 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                       item.comingSoon && 'opacity-50 cursor-not-allowed'
                     )}
                   >
-                    <item.icon size={18} className={cn(isActive ? 'text-primary-400' : 'text-text-muted group-hover:text-text-secondary')} />
-                    <span>{item.label}</span>
-                    {item.comingSoon && <Badge variant="muted" size="sm" className="ml-auto">Soon</Badge>}
+                    <div className="flex items-center justify-center w-6 h-6 flex-shrink-0">
+                      <item.icon size={18} className={cn(isActive ? 'text-primary-400' : 'text-text-muted group-hover:text-text-secondary')} />
+                    </div>
+                    <span className="whitespace-nowrap opacity-100 lg:opacity-0 lg:group-hover/sidebar:opacity-100 transition-opacity">{item.label}</span>
+                    {item.comingSoon && <Badge variant="muted" size="sm" className="ml-auto opacity-100 lg:opacity-0 lg:group-hover/sidebar:opacity-100 transition-opacity">Soon</Badge>}
                   </NavLink>
                 );
               })}
@@ -93,10 +95,10 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
 
       {/* User Section */}
       {user && (
-        <div className="border-t border-border px-4 py-4">
+        <div className="border-t border-border px-4 py-4 min-w-[260px] overflow-hidden">
           <div className="flex items-center gap-3">
-            <Avatar name={user.name} size="sm" status="online" />
-            <div className="flex-1 min-w-0">
+            <Avatar name={user.name} size="sm" status="online" className="flex-shrink-0" />
+            <div className="flex-1 min-w-0 opacity-100 lg:opacity-0 lg:group-hover/sidebar:opacity-100 transition-opacity">
               <p className="text-sm font-medium text-text-primary truncate">{user.name}</p>
               <Badge variant={user.plan === 'pro' ? 'violet' : user.plan === 'basic' ? 'cyan' : 'muted'} size="sm">
                 {user.plan.charAt(0).toUpperCase() + user.plan.slice(1)}
@@ -104,8 +106,8 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             </div>
           </div>
           {user.plan === 'free' && (
-            <button className="mt-3 w-full flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium text-primary-400 bg-primary-500/10 rounded-md hover:bg-primary-500/20 transition-colors">
-              <Sparkles size={12} /> Upgrade Plan
+            <button className="mt-3 w-full flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium text-primary-400 bg-primary-500/10 rounded-md hover:bg-primary-500/20 transition-colors opacity-100 lg:opacity-0 lg:group-hover/sidebar:opacity-100">
+              <Sparkles size={12} /> <span className="whitespace-nowrap">Upgrade Plan</span>
             </button>
           )}
         </div>
@@ -122,9 +124,8 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
 
       {/* Sidebar */}
       <aside className={cn(
-        'fixed top-0 left-0 z-50 h-screen w-[260px] bg-bg-surface border-r border-border flex flex-col transition-transform duration-300',
-        'lg:translate-x-0',
-        isOpen ? 'translate-x-0' : '-translate-x-full'
+        'fixed top-0 left-0 z-50 h-screen bg-bg-surface border-r border-border flex flex-col transition-all duration-300 group/sidebar overflow-hidden',
+        isOpen ? 'translate-x-0 w-[260px]' : '-translate-x-full lg:translate-x-0 w-[260px] lg:w-[80px] lg:hover:w-[260px]'
       )}>
         {sidebarContent}
       </aside>

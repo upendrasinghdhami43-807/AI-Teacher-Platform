@@ -6,6 +6,7 @@ import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import Input from '@/components/ui/Input';
 import Badge from '@/components/ui/Badge';
+import Tabs from '@/components/ui/Tabs';
 import PdfLibraryModal from '@/components/pdf/PdfLibraryModal';
 
 interface PdfFile {
@@ -25,9 +26,16 @@ export default function PdfLearnPage() {
   const [mode, setMode] = useState<'teach' | 'chat' | null>(null);
   const [messages, setMessages] = useState<{ role: 'user' | 'ai'; text: string }[]>([]);
   const [input, setInput] = useState('');
+  const [activeTab, setActiveTab] = useState('upload');
   const [showLibrary, setShowLibrary] = useState(false);
   const [pdfPreview, setPdfPreview] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const tabs = [
+    { id: 'upload', label: 'Upload PDF', icon: <UploadCloud size={16} /> },
+    { id: 'visual', label: 'Visual AI PDF', icon: <Sparkles size={16} /> },
+    { id: 'library', label: 'PDF Library', icon: <Library size={16} /> },
+  ];
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -117,99 +125,118 @@ export default function PdfLearnPage() {
             <p className="text-text-secondary">Upload a PDF or choose from library — AI teaches it on the whiteboard or answers your questions.</p>
           </div>
         </div>
+        {!isProcessed && (
+          <Tabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab} variant="pills" className="w-max mt-4" />
+        )}
       </div>
 
       {/* Upload / Select Section */}
       {!isProcessed ? (
         <div className="max-w-3xl mx-auto space-y-6">
-          <div className="grid md:grid-cols-2 gap-6">
-            {/* Upload Card */}
-            <Card
-              className="p-8 bg-bg-surface border-border border-dashed border-2 hover:border-primary-500/50 transition-all duration-300 cursor-pointer text-center group"
-              onClick={() => !file && fileInputRef.current?.click()}
-            >
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleFileChange}
-                accept=".pdf"
-                className="hidden"
-              />
+          {activeTab === 'upload' && (
+            <div className="space-y-6">
+              <Card
+                className="p-8 bg-bg-surface border-border border-dashed border-2 hover:border-primary-500/50 transition-all duration-300 cursor-pointer text-center group max-w-lg mx-auto"
+                onClick={() => !file && fileInputRef.current?.click()}
+              >
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileChange}
+                  accept=".pdf"
+                  className="hidden"
+                />
 
-              {file ? (
-                <div className="relative">
-                  <button
-                    className="absolute -top-2 -right-2 p-1.5 bg-bg-elevated text-text-muted hover:text-accent-rose rounded-full border border-border z-10"
-                    onClick={(e) => { e.stopPropagation(); clearFile(); }}
-                  >
-                    <X size={14} />
-                  </button>
-                  <FileText size={48} className="mx-auto text-primary-400 mb-4" />
-                  <h3 className="font-semibold text-text-primary truncate">{file.name}</h3>
-                  <p className="text-xs text-text-muted mt-1">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
-                  {file.subject && (
-                    <Badge variant="cyan" size="sm" className="mt-2">{file.subject}</Badge>
-                  )}
-
-                  <Button
-                    variant="primary"
-                    fullWidth
-                    className="mt-6"
-                    loading={isUploading}
-                    onClick={(e) => { e.stopPropagation(); handleProcess(); }}
-                  >
-                    <Sparkles size={16} /> Process with AI
-                  </Button>
-                </div>
-              ) : (
-                <div className="py-4">
-                  <div className="w-16 h-16 rounded-full bg-primary-500/10 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                    <UploadCloud size={32} className="text-primary-400" />
+                {file ? (
+                  <div className="relative">
+                    <button
+                      className="absolute -top-2 -right-2 p-1.5 bg-bg-elevated text-text-muted hover:text-accent-rose rounded-full border border-border z-10"
+                      onClick={(e) => { e.stopPropagation(); clearFile(); }}
+                    >
+                      <X size={14} />
+                    </button>
+                    <FileText size={48} className="mx-auto text-primary-400 mb-4" />
+                    <h3 className="font-semibold text-text-primary truncate">{file.name}</h3>
+                    <p className="text-xs text-text-muted mt-1">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                    
+                    <Button
+                      variant="primary"
+                      fullWidth
+                      className="mt-6"
+                      loading={isUploading}
+                      onClick={(e) => { e.stopPropagation(); handleProcess(); }}
+                    >
+                      <Sparkles size={16} /> Process with AI
+                    </Button>
                   </div>
-                  <h3 className="font-semibold text-text-primary mb-1">Upload Your PDF</h3>
-                  <p className="text-sm text-text-muted">Textbooks, notes, past papers</p>
-                </div>
-              )}
-            </Card>
-
-            {/* Library Card */}
-            <Card
-              className="p-8 bg-bg-surface border-border hover:border-accent-cyan/50 transition-all duration-300 cursor-pointer text-center group"
-              onClick={() => setShowLibrary(true)}
-            >
-              <div className="py-4">
-                <div className="w-16 h-16 rounded-full bg-accent-cyan/10 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                  <Library size={32} className="text-accent-cyan" />
-                </div>
-                <h3 className="font-semibold text-text-primary mb-1">PDF Library</h3>
-                <p className="text-sm text-text-muted">Choose from admin-curated resources</p>
-                <div className="mt-4 flex items-center justify-center gap-2">
-                  <Badge variant="glass" size="sm">12 PDFs</Badge>
-                  <Badge variant="glass" size="sm">All Subjects</Badge>
-                </div>
-              </div>
-            </Card>
-          </div>
-
-          {/* Recent PDFs */}
-          <div>
-            <h3 className="text-sm font-medium text-text-secondary mb-3">Recent Documents</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              {['Physics Notes Ch.5', 'Chemistry Lab Manual', 'Math Past Paper 2024', 'Biology Diagrams'].map((name, i) => (
-                <button
-                  key={i}
-                  onClick={() => {
-                    setFile({ id: `recent_${i}`, name: `${name}.pdf`, size: 1024 * 1024 * (i + 1) });
-                    setLocalFile(null);
-                  }}
-                  className="flex items-center gap-2 p-3 rounded-lg bg-bg-surface border border-border hover:border-primary-500/30 transition-colors text-left"
-                >
-                  <FileText size={16} className="text-text-muted flex-shrink-0" />
-                  <span className="text-xs text-text-primary truncate">{name}</span>
-                </button>
-              ))}
+                ) : (
+                  <div className="py-4">
+                    <div className="w-16 h-16 rounded-full bg-primary-500/10 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                      <UploadCloud size={32} className="text-primary-400" />
+                    </div>
+                    <h3 className="font-semibold text-text-primary mb-1">Upload Your PDF</h3>
+                    <p className="text-sm text-text-muted">Use any PDF as a whiteboard for AI to explain</p>
+                  </div>
+                )}
+              </Card>
             </div>
-          </div>
+          )}
+
+          {activeTab === 'visual' && (
+            <div className="space-y-4">
+               <h3 className="text-lg font-semibold text-text-primary">Visual Format PDFs</h3>
+               <p className="text-sm text-text-secondary mb-4">Special format PDFs curated by Admin that the AI has pre-learned to visualize perfectly on the board.</p>
+               <div className="grid md:grid-cols-2 gap-4">
+                 {[1, 2].map((i) => (
+                   <Card key={i} className="p-4 bg-bg-surface border-border hover:border-accent-amber/50 cursor-pointer" onClick={() => {
+                     setFile({ id: `vis_${i}`, name: `Visual_Lesson_${i}.pdf`, size: 2000000 });
+                     setLocalFile(null);
+                     handleProcess();
+                   }}>
+                     <div className="flex gap-3">
+                       <div className="w-12 h-12 rounded-lg bg-accent-amber/10 flex items-center justify-center">
+                         <Sparkles size={20} className="text-accent-amber" />
+                       </div>
+                       <div>
+                         <h4 className="font-medium text-text-primary text-sm">Visual Lesson {i}</h4>
+                         <Badge variant="glass" size="sm" className="mt-1">Pre-Learned</Badge>
+                       </div>
+                     </div>
+                   </Card>
+                 ))}
+               </div>
+            </div>
+          )}
+
+          {activeTab === 'library' && (
+            <div className="space-y-4">
+               <div className="flex items-center justify-between">
+                 <div>
+                   <h3 className="text-lg font-semibold text-text-primary">Standard PDF Library</h3>
+                   <p className="text-sm text-text-secondary">Choose from admin-curated resources for general learning.</p>
+                 </div>
+                 <Button onClick={() => setShowLibrary(true)}>Browse All</Button>
+               </div>
+               
+               <h3 className="text-sm font-medium text-text-secondary mt-6 mb-3">Recent Documents</h3>
+               <div className="grid grid-cols-2 gap-3">
+                 {['Physics Notes Ch.5', 'Chemistry Lab Manual', 'Math Past Paper 2024', 'Biology Diagrams'].map((name, i) => (
+                   <button
+                     key={i}
+                     onClick={() => {
+                       setFile({ id: `recent_${i}`, name: `${name}.pdf`, size: 1024 * 1024 * (i + 1) });
+                       setLocalFile(null);
+                       handleProcess();
+                     }}
+                     className="flex items-center gap-2 p-3 rounded-lg bg-bg-surface border border-border hover:border-primary-500/30 transition-colors text-left"
+                   >
+                     <FileText size={16} className="text-text-muted flex-shrink-0" />
+                     <span className="text-xs text-text-primary truncate">{name}</span>
+                   </button>
+                 ))}
+               </div>
+            </div>
+          )}
         </div>
       ) : (
         /* Mode Selection + Interaction */

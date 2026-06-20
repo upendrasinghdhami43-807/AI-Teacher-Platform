@@ -11,6 +11,7 @@ import CourseBuilderPage from '@/pages/courses/CourseBuilderPage';
 import LessonBuilderPage from '@/pages/courses/LessonBuilderPage';
 import ContentLibraryPage from '@/pages/content/ContentLibraryPage';
 import SmartPdfPage from '@/pages/content/SmartPdfPage';
+import PdfManagementPage from '@/pages/pdfs/PdfManagementPage';
 import LectureLibraryPage from '@/pages/lectures/LectureLibraryPage';
 import ChatHistoryPage from '@/pages/chat/ChatHistoryPage';
 import AnalyticsPage from '@/pages/analytics/AnalyticsPage';
@@ -36,6 +37,7 @@ export default function App() {
         <Route path="/courses/:courseId" element={<CourseBuilderPage />} />
         <Route path="/courses/:courseId/lessons/:lessonId" element={<LessonBuilderPage />} />
         <Route path="/content" element={<ContentLibraryPage />} />
+        <Route path="/pdfs" element={<PdfManagementPage />} />
         <Route path="/content/smart-pdfs" element={<SmartPdfPage />} />
         <Route path="/lectures" element={<LectureLibraryPage />} />
         <Route path="/chat-history" element={<ChatHistoryPage />} />
